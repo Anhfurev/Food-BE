@@ -1,26 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadImageToCloudinary } from "../../../../lib/utils/uploadImage";
-import { createFood, getAllFoods } from "../../../../lib/services/food-service";
+
 import { SearchParams } from "next/dist/server/request/search-params";
+import { uploadImageToCloudinary } from "../../../../../lib/utils/uploadImage";
+import {
+  createFood,
+  getAllFoods,
+} from "../../../../../lib/services/food-service";
+import { updateFood } from "../../../../../lib/services/update-service";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
-
   // Extract food fields from formData
   const name = formData.get("name") as string;
   const ingredients = formData.get("ingredients") as string;
   const price = formData.get("price") as string;
   const categoryId = formData.get("categoryId") as string;
-  const image = formData.get("image") as File;
+  const image = formData.get("image") as File; //File undefined
+  let imageUrl = formData.get("imageUrl") as string;
+  const id = formData.get("id") as string;
 
-  const uploadedUrl = await uploadImageToCloudinary(image);
+  if (image) {
+    imageUrl = await uploadImageToCloudinary(image);
+  }
 
-  const result = await createFood(
+  const result = await updateFood(
     name,
     ingredients,
     Number(price),
     categoryId,
-    uploadedUrl
+    imageUrl,
+    id
   );
 
   if (result) {
